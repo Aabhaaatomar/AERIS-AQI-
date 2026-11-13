@@ -5,6 +5,7 @@ Generates realistic multi-city, multi-season daily observations compliant with
 official CPCB sub-index calculation guidelines.
 """
 
+import os
 import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
@@ -192,7 +193,7 @@ def generate_cpcb_dataset():
             })
             
     df = pd.DataFrame(records)
-    output_path = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\data\city_day_cpcb.csv"
+    output_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "city_day_cpcb.csv")
     df.to_csv(output_path, index=False)
     print(f"Generated {len(df)} records across {len(cities)} cities saved to {output_path}")
     print("AQI Bucket breakdown:")
