@@ -5,6 +5,7 @@ Evaluates Linear Regression, Decision Tree, and Random Forest Regressors using a
 
 import json
 import os
+import sys
 import pandas as pd
 import streamlit as st
 from config import COLORS, render_html
@@ -16,13 +17,25 @@ from components.charts import (
     plot_feature_importance
 )
 
-METRICS_PATH = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\models\model_metrics.json"
-EVAL_DATA_PATH = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\models\test_evaluation_data.csv"
+# Dynamic root directory resolution (works across Linux/Streamlit Cloud, Windows, macOS)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+METRICS_PATH = os.path.join(BASE_DIR, "models", "model_metrics.json")
+EVAL_DATA_PATH = os.path.join(BASE_DIR, "models", "test_evaluation_data.csv")
 
 @st.cache_data
 def load_performance_data():
     if not os.path.exists(METRICS_PATH) or not os.path.exists(EVAL_DATA_PATH):
-        st.error("Model metrics or evaluation dataset not found. Please run train_models.py.")
+        try:
+            if BASE_DIR not in sys.path:
+                sys.path.insert(0, BASE_DIR)
+            from train_models import train_and_evaluate
+            train_and_evaluate()
+        except Exception as e:
+            st.error(f"Error training models automatically: {e}")
+            return None, None
+            
+    if not os.path.exists(METRICS_PATH) or not os.path.exists(EVAL_DATA_PATH):
+        st.error("Model metrics or evaluation dataset not found.")
         return None, None
         
     with open(METRICS_PATH, 'r') as f:

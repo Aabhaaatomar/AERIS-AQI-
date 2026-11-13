@@ -4,6 +4,7 @@ Core interactive machine learning prediction interface using trained models.
 """
 
 import os
+import sys
 import joblib
 import numpy as np
 import pandas as pd
@@ -11,8 +12,8 @@ import streamlit as st
 from config import COLORS, get_category_info, POLLUTANT_INFO, calculate_sub_index, render_html
 from components.cards import create_aqi_gauge, render_health_card
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+# Dynamic root directory resolution (works on Linux/Streamlit Cloud, Windows, Docker)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 @st.cache_resource
@@ -24,12 +25,25 @@ def load_trained_models():
         'Decision Tree Regressor': 'decision_tree.joblib',
         'Linear Regression': 'linear_regression.joblib'
     }
+    
+    # Check if models exist, if not auto-train on startup
+    rf_path = os.path.join(MODELS_DIR, 'random_forest.joblib')
+    if not os.path.exists(rf_path):
+        try:
+            if BASE_DIR not in sys.path:
+                sys.path.insert(0, BASE_DIR)
+            from train_models import train_and_evaluate
+            train_and_evaluate()
+        except Exception as e:
+            st.error(f"Error initializing models: {e}")
+            
     for label, fname in model_files.items():
         path = os.path.join(MODELS_DIR, fname)
         if os.path.exists(path):
             models[label] = joblib.load(path)
         else:
-            st.error(f"Model file not found: {path}. Please run train_models.py.")
+            st.warning(f"Model file missing: {fname}")
+            
     return models
 
 def render_prediction():
@@ -100,9 +114,14 @@ def render_prediction():
             st.markdown("### Atmospheric Pollutant Parameters")
             
             # Model selector dropdown
+            available_model_names = list(models.keys())
+            if not available_model_names:
+                st.error("No ML models currently loaded. Please ensure training artifacts exist.")
+                return
+                
             selected_model_name = st.selectbox(
                 "Select Machine Learning Engine:",
-                list(models.keys()),
+                available_model_names,
                 index=0,
                 help="Random Forest is the highest-accuracy ensemble model for non-linear CPCB breakpoints."
             )
@@ -165,7 +184,10 @@ def render_prediction():
     with col_result:
         # Prediction execution
         active_model = models.get(selected_model_name)
-        
+        if active_model is None:
+            st.error(f"Selected model '{selected_model_name}' could not be loaded.")
+            return
+            
         # Prepare feature vector
         features = ['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'O3']
         input_data = pd.DataFrame([[pm25, pm10, no2, so2, co, o3]], columns=features)
