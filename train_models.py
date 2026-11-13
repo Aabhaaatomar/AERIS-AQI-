@@ -5,6 +5,8 @@ Trains Linear Regression, Decision Tree, and Random Forest Regressors on Indian 
 Saves models with joblib and exports real evaluation metrics to JSON and CSV.
 """
 
+import os
+import sys
 import json
 import joblib
 import numpy as np
@@ -15,13 +17,21 @@ from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-DATA_PATH = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\data\city_day_cpcb.csv"
-MODELS_DIR = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\models"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.join(BASE_DIR, "data", "city_day_cpcb.csv")
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 FEATURES = ['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'O3']
 TARGET = 'AQI'
 
 def train_and_evaluate():
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    
+    if not os.path.exists(DATA_PATH):
+        print("Dataset missing, generating dataset on the fly...")
+        from data.generate_dataset import generate_cpcb_dataset
+        generate_cpcb_dataset()
+        
     print("Loading dataset from:", DATA_PATH)
     df = pd.read_csv(DATA_PATH)
     
@@ -71,7 +81,7 @@ def train_and_evaluate():
         test_eval_df[f'Residual_{safe_name}'] = np.round(y_test.values - y_pred, 2)
         
         # Save individual model
-        save_file = f"{MODELS_DIR}/{safe_name}.joblib"
+        save_file = os.path.join(MODELS_DIR, f"{safe_name}.joblib")
         joblib.dump(model, save_file)
         print(f"Saved {name} to {save_file}")
         print(f"   -> MAE: {mae:.3f}, RMSE: {rmse:.3f}, R2: {r2:.4f}")
@@ -112,13 +122,13 @@ def train_and_evaluate():
     }
     
     # Save metrics JSON
-    metrics_path = f"{MODELS_DIR}/model_metrics.json"
+    metrics_path = os.path.join(MODELS_DIR, "model_metrics.json")
     with open(metrics_path, 'w') as f:
         json.dump(summary, f, indent=4)
     print(f"Saved metrics summary to {metrics_path}")
     
     # Save evaluation test sample (first 400 points for crisp interactive visual rendering)
-    eval_csv_path = f"{MODELS_DIR}/test_evaluation_data.csv"
+    eval_csv_path = os.path.join(MODELS_DIR, "test_evaluation_data.csv")
     test_eval_df.to_csv(eval_csv_path, index=False)
     print(f"Saved test evaluation data ({len(test_eval_df)} rows) to {eval_csv_path}")
 
