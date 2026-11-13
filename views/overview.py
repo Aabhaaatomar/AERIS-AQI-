@@ -5,7 +5,7 @@ High-level environmental telemetry analytics, KPI cards, and aggregate visualiza
 
 import streamlit as st
 import pandas as pd
-from config import COLORS
+from config import COLORS, render_html
 from components.cards import render_stat_card
 from components.charts import (
     plot_aqi_distribution,
@@ -16,7 +16,7 @@ from components.charts import (
 )
 
 def render_overview(df):
-    st.markdown("""
+    render_html("""
     <div style="margin-bottom: 16px;">
         <h2 style="margin: 0; font-family: 'Poppins', sans-serif; font-size: 1.4rem; color: #12372A; font-weight: 600;">
             National Air Quality Overview
@@ -25,7 +25,7 @@ def render_overview(df):
             Synthesized telemetry across 10 major Indian municipal monitoring networks (2023–2024).
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
     
     # Filter Row (City Selector)
     cities = ["All Cities (National Aggregate)"] + sorted(df['City'].unique().tolist())
@@ -51,100 +51,83 @@ def render_overview(df):
     c1, c2, c3, c4, c5 = st.columns(5)
     
     with c1:
-        st.markdown(render_stat_card(
+        render_html(render_stat_card(
             label="Average AQI",
             value=f"{avg_aqi:.1f}",
             icon="📊",
             unit="Index"
-        ), unsafe_allow_html=True)
+        ))
         
     with c2:
-        st.markdown(render_stat_card(
+        render_html(render_stat_card(
             label="Peak Recorded AQI",
             value=f"{max_aqi:.0f}",
             icon="🚨",
             unit="Max"
-        ), unsafe_allow_html=True)
+        ))
         
     with c3:
-        st.markdown(render_stat_card(
+        render_html(render_stat_card(
             label="Minimum AQI",
             value=f"{min_aqi:.0f}",
             icon="🌱",
             unit="Min"
-        ), unsafe_allow_html=True)
+        ))
         
     with c4:
-        st.markdown(render_stat_card(
+        render_html(render_stat_card(
             label="Monitored Days",
             value=f"{total_obs:,}",
             icon="📅",
             unit="Records"
-        ), unsafe_allow_html=True)
+        ))
         
     with c5:
         if selected_city == "All Cities (National Aggregate)":
-            st.markdown(render_stat_card(
+            render_html(render_stat_card(
                 label="Most Impacted City",
                 value=most_polluted,
                 icon="🏭",
                 unit=f"({city_means[most_polluted]:.0f} AQI)"
-            ), unsafe_allow_html=True)
+            ))
         else:
             pct_good_sat = ((filtered_df['AQI_Bucket'].isin(['Good', 'Satisfactory'])).sum() / total_obs) * 100
-            st.markdown(render_stat_card(
+            render_html(render_stat_card(
                 label="Clean Air Share",
                 value=f"{pct_good_sat:.1f}%",
                 icon="🍃",
                 unit="Good/Sat"
-            ), unsafe_allow_html=True)
+            ))
             
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height: 14px;'></div>", unsafe_allow_html=True)
     
     # Row 1 of Charts: Trend over time
-    st.markdown("""
-    <div style="background: #FFFFFF; border-radius: 14px; padding: 20px; border: 1px solid #E2EBE2; box-shadow: 0 2px 10px rgba(18,55,42,0.03); margin-bottom: 22px;">
-    """, unsafe_allow_html=True)
-    fig_trend = plot_aqi_trend(df, city=selected_city)
-    st.plotly_chart(fig_trend, use_container_width=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.container(border=True):
+        fig_trend = plot_aqi_trend(df, city=selected_city)
+        st.plotly_chart(fig_trend, use_container_width=True)
     
     # Row 2 of Charts: Distribution & Categories
     col_dist, col_donut = st.columns([1.3, 1])
     
     with col_dist:
-        st.markdown("""
-        <div style="background: #FFFFFF; border-radius: 14px; padding: 20px; border: 1px solid #E2EBE2; box-shadow: 0 2px 10px rgba(18,55,42,0.03);">
-        """, unsafe_allow_html=True)
-        fig_dist = plot_aqi_distribution(filtered_df)
-        st.plotly_chart(fig_dist, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            fig_dist = plot_aqi_distribution(filtered_df)
+            st.plotly_chart(fig_dist, use_container_width=True)
         
     with col_donut:
-        st.markdown("""
-        <div style="background: #FFFFFF; border-radius: 14px; padding: 20px; border: 1px solid #E2EBE2; box-shadow: 0 2px 10px rgba(18,55,42,0.03);">
-        """, unsafe_allow_html=True)
-        fig_donut = plot_aqi_category_donut(filtered_df)
-        st.plotly_chart(fig_donut, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            fig_donut = plot_aqi_category_donut(filtered_df)
+            st.plotly_chart(fig_donut, use_container_width=True)
         
-    st.markdown("<div style='height: 22px;'></div>", unsafe_allow_html=True)
-    
     # Row 3 of Charts: City Ranking & Pollutant Comparison
     col_rank, col_poll = st.columns([1.1, 1.1])
     
     with col_rank:
-        st.markdown("""
-        <div style="background: #FFFFFF; border-radius: 14px; padding: 20px; border: 1px solid #E2EBE2; box-shadow: 0 2px 10px rgba(18,55,42,0.03);">
-        """, unsafe_allow_html=True)
-        fig_rank = plot_city_aqi_ranking(df)
-        st.plotly_chart(fig_rank, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            fig_rank = plot_city_aqi_ranking(df)
+            st.plotly_chart(fig_rank, use_container_width=True)
         
     with col_poll:
-        st.markdown("""
-        <div style="background: #FFFFFF; border-radius: 14px; padding: 20px; border: 1px solid #E2EBE2; box-shadow: 0 2px 10px rgba(18,55,42,0.03);">
-        """, unsafe_allow_html=True)
-        fig_poll = plot_pollutant_concentration_comparison(filtered_df)
-        st.plotly_chart(fig_poll, use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.container(border=True):
+            fig_poll = plot_pollutant_concentration_comparison(filtered_df)
+            st.plotly_chart(fig_poll, use_container_width=True)
