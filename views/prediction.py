@@ -11,7 +11,9 @@ import streamlit as st
 from config import COLORS, get_category_info, POLLUTANT_INFO, calculate_sub_index, render_html
 from components.cards import create_aqi_gauge, render_health_card
 
-MODELS_DIR = r"C:\Users\tomar\.gemini\antigravity\scratch\aeris_aqi_system\models"
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 
 @st.cache_resource
 def load_trained_models():
