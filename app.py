@@ -15,7 +15,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-from config import COLORS
+from config import COLORS, render_html
 from components.header import render_header
 from views.overview import render_overview
 from views.prediction import render_prediction
@@ -167,7 +167,7 @@ CUSTOM_CSS = f"""
     }}
 </style>
 """
-st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+render_html(CUSTOM_CSS)
 
 # ---------------------------------------------------------
 # Data Loader (Cached)
@@ -189,56 +189,26 @@ df = load_air_quality_data()
 # ---------------------------------------------------------
 with st.sidebar:
     # Brand Emblem & Logo
-    st.markdown(f"""
+    render_html(f"""
     <div style="padding-bottom: 18px; border-bottom: 1px solid {COLORS['border']}; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
-            <div style="
-                width: 38px;
-                height: 38px;
-                border-radius: 10px;
-                background: linear-gradient(135deg, {COLORS['forest']} 0%, {COLORS['emerald']} 100%);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.25rem;
-                box-shadow: 0 2px 8px rgba(18,55,42,0.15);
-            ">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, {COLORS['forest']} 0%, {COLORS['emerald']} 100%); display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 0 2px 8px rgba(18,55,42,0.15);">
                 🍃
             </div>
             <div>
-                <span style="
-                    font-family: 'Poppins', sans-serif;
-                    font-size: 1.35rem;
-                    font-weight: 700;
-                    letter-spacing: -0.5px;
-                    color: {COLORS['forest']};
-                    display: block;
-                    line-height: 1.1;
-                ">
+                <span style="font-family: 'Poppins', sans-serif; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px; color: {COLORS['forest']}; display: block; line-height: 1.1;">
                     AERIS
                 </span>
-                <span style="
-                    font-size: 0.65rem;
-                    text-transform: uppercase;
-                    letter-spacing: 0.8px;
-                    color: {COLORS['text_muted']};
-                    font-weight: 600;
-                ">
+                <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.8px; color: {COLORS['text_muted']}; font-weight: 600;">
                     Air Intelligence
                 </span>
             </div>
         </div>
-        <div style="
-            font-size: 0.78rem;
-            color: {COLORS['text_secondary']};
-            font-style: italic;
-            margin-top: 6px;
-            padding-left: 2px;
-        ">
+        <div style="font-size: 0.78rem; color: {COLORS['text_secondary']}; font-style: italic; margin-top: 6px; padding-left: 2px;">
             "Understand the Air. Predict the Future."
         </div>
     </div>
-    """, unsafe_allow_html=True)
+    """)
     
     # Navigation items
     nav_options = [
@@ -282,14 +252,8 @@ with st.sidebar:
         selected_nav = st.radio("Navigation Menu", nav_options, index=0)
         
     # Sidebar footer badge
-    st.markdown(f"""
-    <div style="
-        margin-top: 40px;
-        padding: 14px;
-        border-radius: 10px;
-        background: {COLORS['bg_main']};
-        border: 1px solid {COLORS['border']};
-    ">
+    render_html(f"""
+    <div style="margin-top: 40px; padding: 14px; border-radius: 10px; background: {COLORS['bg_main']}; border: 1px solid {COLORS['border']};">
         <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
             <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #16A34A;"></span>
             <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: {COLORS['forest']};">
@@ -300,7 +264,7 @@ with st.sidebar:
             Supervised ML model engine utilizing Scikit-learn pipelines with zero-latency Joblib serialization.
         </p>
     </div>
-    """, unsafe_allow_html=True)
+    """)
 
 # ---------------------------------------------------------
 # Main Page Router

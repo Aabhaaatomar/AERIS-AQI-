@@ -3,8 +3,20 @@ AERIS - Air Quality Intelligence System
 Configuration, Theme Palette, CPCB Standards, and Constants
 """
 
+import streamlit as st
 import plotly.graph_objects as go
 import plotly.io as pio
+
+def render_html(html_code):
+    """
+    Renders raw HTML safely in Streamlit without the Markdown parser
+    mistakenly converting 4-space indented lines into code blocks.
+    """
+    clean_html = "\n".join(line.strip() for line in html_code.splitlines() if line.strip())
+    if hasattr(st, "html"):
+        st.html(clean_html)
+    else:
+        st.markdown(clean_html, unsafe_allow_html=True)
 
 # ---------------------------------------------------------
 # Visual Palette
