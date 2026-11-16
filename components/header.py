@@ -1,51 +1,48 @@
 """
-AERIS - Main Header Component
-Renders the brand banner, title, dataset telemetry indicators, and filter badges.
+AERIS 2.0 - Header Component
+Theme-aware branding banner with live status, environmental emblem, and crisp typography.
 """
 
 import streamlit as st
-from config import COLORS, render_html
+from config import render_html
+from utils.theme_manager import get_theme_colors
 
-def render_header(total_records=7310, date_range="2023 - 2024", selected_city=None, cities_count=10):
-    """Render top-level dashboard header with dataset metadata and environmental badge."""
-    
-    city_display = selected_city if selected_city and selected_city != "All Cities (National Aggregate)" else f"{cities_count} Indian Cities Monitoring Network"
+def render_header(title="AERIS 2.0", subtitle="Breathe Smarter. Understand Better.", location_text="Multi-City Network", status_text="Live CAAQMS Active"):
+    """Render a clean, high-contrast theme-aware top header banner."""
+    t = get_theme_colors()
     
     html = f"""
-    <div style="background: linear-gradient(135deg, {COLORS['forest']} 0%, #174A38 60%, {COLORS['emerald']} 100%); border-radius: 16px; padding: 24px 28px; color: white; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: 0 4px 20px rgba(18, 55, 42, 0.12);">
-        <div style="position: absolute; right: -20px; top: -30px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(183, 228, 199, 0.15) 0%, rgba(255,255,255,0) 70%); pointer-events: none;"></div>
-        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; position: relative; z-index: 1;">
-            <div>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
-                    <span style="background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.25); padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: {COLORS['mint']}; display: flex; align-items: center; gap: 5px;">
-                        <span>🍃</span> AERIS PLATFORM
-                    </span>
-                    <span style="font-size: 0.78rem; color: rgba(255, 255, 255, 0.75);">
-                        CPCB Telemetry • NAQI Standard
-                    </span>
-                </div>
-                <h1 style="margin: 0; font-family: 'Poppins', sans-serif; font-size: 1.85rem; font-weight: 700; letter-spacing: -0.5px; color: #FFFFFF;">
-                    Air Quality Intelligence
-                </h1>
-                <p style="margin: 4px 0 0 0; font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); font-weight: 400;">
-                    Monitor pollution. Understand patterns. Predict air quality.
-                </p>
+    <div style="background: {t['bg_card']}; border: 1px solid {t['border']}; border-radius: 16px; padding: 20px 24px; margin-bottom: 22px; box-shadow: {t['card_shadow']}; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(135deg, {t['primary']} 0%, {t['secondary']} 100%); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
+                🍃
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
-                <div style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 8px 14px; text-align: left;">
-                    <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: {COLORS['mint']}; font-weight: 600;">Location Focus</div>
-                    <div style="font-size: 0.88rem; font-weight: 600; color: #FFFFFF;">{city_display}</div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-family: 'Space Grotesk', sans-serif; font-size: 1.45rem; font-weight: 700; color: {t['primary']}; letter-spacing: -0.5px;">
+                        AERIS 2.0
+                    </span>
+                    <span style="background: {t['bg_secondary']}; color: {t['primary']}; border: 1px solid {t['border']}; padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;">
+                        AI System
+                    </span>
                 </div>
-                <div style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 8px 14px; text-align: left;">
-                    <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: {COLORS['mint']}; font-weight: 600;">CPCB Dataset</div>
-                    <div style="font-size: 0.88rem; font-weight: 600; color: #FFFFFF;">{total_records:,} Records ({date_range})</div>
+                <div style="font-size: 0.86rem; color: {t['text_secondary']}; margin-top: 2px; font-weight: 480;">
+                    {subtitle}
                 </div>
-                <div style="background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18); border-radius: 10px; padding: 8px 14px; text-align: left;">
-                    <div style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.5px; color: {COLORS['mint']}; font-weight: 600;">Status</div>
-                    <div style="font-size: 0.88rem; font-weight: 600; color: #FFFFFF; display: flex; align-items: center; gap: 6px;">
-                        <span style="width: 8px; height: 8px; border-radius: 50%; background: #4ADE80; display: inline-block;"></span>
-                        Verified Telemetry
-                    </div>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+            <div style="background: {t['bg_secondary']}; border: 1px solid {t['border']}; border-radius: 10px; padding: 6px 14px; text-align: left;">
+                <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: {t['text_muted']}; font-weight: 700;">Location Focus</div>
+                <div style="font-size: 0.82rem; font-weight: 600; color: {t['text_primary']};">{location_text}</div>
+            </div>
+
+            <div style="background: {t['bg_secondary']}; border: 1px solid {t['border']}; border-radius: 10px; padding: 6px 14px; text-align: left;">
+                <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.5px; color: {t['text_muted']}; font-weight: 700;">System Telemetry</div>
+                <div style="font-size: 0.82rem; font-weight: 600; color: {t['text_primary']}; display: flex; align-items: center; gap: 6px;">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: #16A34A; display: inline-block;"></span>
+                    {status_text}
                 </div>
             </div>
         </div>
